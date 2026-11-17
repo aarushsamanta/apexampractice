@@ -22,10 +22,10 @@ button{font:600 15px Inter;background:var(--ink);color:var(--bg);border:0;border
 .why{font-size:14px;color:var(--mute)}.tag{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--acc);font-weight:600}
 .bar{height:4px;background:var(--line);border-radius:4px;margin-top:6px}.bar div{height:100%;background:var(--acc);border-radius:4px}
 @media(max-width:800px){main{grid-template-columns:1fr;padding:16px}nav{position:static}}
-</style></head><body>
+.in{animation:up .5s}@keyframes up{from{opacity:0;transform:translateY(14px)}}#go{position:sticky;bottom:18px;display:block;margin:14px auto;box-shadow:0 6px 20px #0004;background:var(--acc);color:#fff;padding:12px 26px;border-radius:99px}.card p,.card li{font-size:17px}</style></head><body>
 <header><div class=logo onclick="location.hash=''">Apex<i>.</i></div><span id=pr style="font-size:14px;color:var(--mute)"></span></header>
 <main><nav id=nav></nav><section id=view></section></main>
-<script src=data.js></script><script src=demos.js></script><script src=unit1.js></script>
+<script src=data.js></script><script src=demos.js></script><script src=unit1.js></script><script src=unit2.js></script><script src=demos2.js></script>
 <script>
 const C=COURSES[0],$=s=>document.querySelector(s);
 let P={};try{P=JSON.parse(localStorage.ap1||'{}')}catch(e){}
@@ -40,7 +40,7 @@ function quiz(qs,done,label){let i=0,s=0;const box=document.createElement('div')
 (function show(){if(i>=qs.length){const p=Math.round(s/qs.length*100);box.innerHTML=`<div class=tag>${label}</div><h2>${s}/${qs.length} correct · ${p}%</h2><p>${p>=80?'Strong work.':'Review the lesson and try again.'}</p>`;done(p);return}
 const q=qs[i];box.innerHTML=`<div class=tag>${label} · ${i+1} of ${qs.length}</div><h3>${q.q}</h3>`+q.o.map((o,j)=>`<button class=opt data-j=${j}>${'ABCD'[j]}. ${o}</button>`).join('')+`<p class=why id=w></p>`;
 box.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{if(box.dataset.l==i)return;box.dataset.l=i;const j=+b.dataset.j;if(j==q.a)s++;
-box.querySelectorAll('.opt').forEach(x=>x.classList.add(+x.dataset.j==q.a?'ok':x==b?'bad':''));
+box.querySelectorAll('.opt').forEach(x=>{const k=+x.dataset.j==q.a?'ok':x==b?'bad':null;if(k)x.classList.add(k)});
 box.querySelector('#w').innerHTML=q.w+'<br><br><button id=nx>'+(i+1<qs.length?'Next':'Finish')+'</button>';box.querySelector('#nx').onclick=()=>{i++;show()}})})();return box}
 function route(){const h=location.hash.slice(1),v=$('#view');window.scrollTo(0,0);nav(h);
 if(!h){v.innerHTML=`<div class=tag>Free AP exam prep</div><h1 style="font-size:44px">Learn it. Play with it. Pass the exam.</h1><p style="max-width:540px;color:var(--mute)">Short lessons with live demos, practice mid-lesson, a check after each lesson, and an AP-style test for every unit.</p><button onclick="location.hash='L1.1'">Start ${C.title}</button>`;return}
@@ -49,6 +49,8 @@ if(t=='T'){v.innerHTML=`<div class=tag>Unit ${u.id} test</div><h1>${u.title}</h1
 const l=u.lessons.find(l=>l.id==id),k=u.lessons.indexOf(l),nx=u.lessons[k+1];
 v.innerHTML=`<div class=tag>Unit ${u.id} · Lesson ${l.id}</div><h1>${l.title}</h1><div class=card>${l.body}</div>`+(l.demo?`<div class=card><div class=tag>Interactive demo</div><div id=d></div></div>`:'')+`<div class=card id=p></div><div class=card id=c></div><div id=n></div>`;
 if(l.demo)DEMOS[l.demo]($('#d'));
+const els=[...v.querySelector('.card').children,...[...v.querySelectorAll(':scope > .card')].slice(1)];els.forEach((e,i)=>{if(i)e.style.display='none'});
+if(els.length>1){const g=document.createElement('button');g.id='go';g.textContent='Continue ↓';let j=1;g.onclick=()=>{const e=els[j++];e.style.display='';e.classList.add('in');e.querySelector('.sm')?.click();e.scrollIntoView({behavior:'smooth',block:'center'});if(j>=els.length)g.remove()};v.append(g)}
 $('#p').append(quiz([l.practice],()=>{},'Practice'));
 $('#c').append(quiz(l.check,p=>{save(h,p);$('#n').innerHTML=`<button onclick="location.hash='${nx?'L'+nx.id:'T'+u.id}'">${nx?'Next lesson':'Take the unit test'} →</button>`;nav(h)},'Understanding check'))}
 addEventListener('hashchange',route);route();
